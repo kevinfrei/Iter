@@ -34,7 +34,8 @@
     "chk": "yarn format && yarn lint && yarn compile && yarn test"
   },
   "devDependencies": {
-    "@freik/ts-tooling": "^0.0.2"
+    "@freik/ts-tooling": "^0.0.2",
+    "prettier": "^2.1.2"
   },
   "dependencies": {},
   "eslintConfig": {

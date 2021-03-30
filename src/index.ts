@@ -23,68 +23,89 @@ export declare type IterExpr<T> = {
 
 export function Iter<T>(col: Iterable<T>): IterExpr<T> {
   // TODO: Make a helper to allow cached results
+  // TODO: Add Concat capabilities
+
+  const items = [col];
+
+  function* theCollection() {
+    for (const item of items) {
+      for (const elem of item) {
+        yield elem;
+      }
+    }
+  }
+
   function forEach(arg: (v: T) => void) {
-    for (const v of col) {
+    for (const v of theCollection()) {
       arg(v);
     }
   }
   function* runFilter(fn: (v: T, index: number) => boolean) {
     let idx = 0;
-    for (const i of col) {
+    for (const i of theCollection()) {
       if (fn(i, idx++)) {
         yield i;
       }
     }
   }
-  function filter(fn: (v: T, index: number) => boolean) {
-    return Iter(runFilter(fn));
-  }
+
   function* runMap<U>(fn: (v: T, index: number) => U) {
     let idx = 0;
-    for (const i of col) {
+    for (const i of theCollection()) {
       yield fn(i, idx++);
     }
   }
+
+  function filter(fn: (v: T, index: number) => boolean) {
+    return Iter(runFilter(fn));
+  }
+
   function map<U>(fn: (v: T, index: number) => U) {
     return Iter(runMap(fn));
   }
+
   function reduce<U>(fn: (pv: U, cv: T, index: number) => U, initVal: U) {
     let val = initVal;
     let i = 0;
-    for (const cur of col) {
+    for (const cur of theCollection()) {
       val = fn(val, cur, i++);
     }
     return val;
   }
+
   function toArray() {
     const res = [];
-    for (const cur of col) {
+    for (const cur of theCollection()) {
       res.push(cur);
     }
     return res;
   }
+
   function toIterable() {
-    return col;
+    return theCollection();
   }
+
   function* entries(): Generator<[number, T]> {
     let i = 0;
-    for (const v of col) {
+    for (const v of theCollection()) {
       yield [i, v];
       i++;
     }
   }
+
   function every(fn: (v: T, index: number) => unknown) {
     let idx = 0;
-    for (const val of col) {
+    for (const val of theCollection()) {
       if (!fn(val, idx++)) {
         return false;
       }
     }
     return true;
   }
+
   function some(fn: (v: T, index: number) => unknown) {
     let idx = 0;
-    for (const val of col) {
+    for (const val of theCollection()) {
       if (fn(val, idx++)) {
         return true;
       }
@@ -109,7 +130,6 @@ export function Iter<T>(col: Iterable<T>): IterExpr<T> {
   };
 }
 
-/*
 function MakeArray(count: number): number[] {
   const data: number[] = Array(count) as number[];
   for (let i = 0; i < data.length; i++) {
@@ -144,19 +164,51 @@ function IterUsage(count: number) {
     .reduce((pv, cv) => pv + cv, 0);
   console.log(data);
 }
-ArrayUsage(100);
-for (let i = 1; i < 14; i++) {
-  const before = Date.now();
-  ArrayUsage(1 << (i * 2));
-  const elapsed = Date.now() - before;
-  console.log(`Array ${i}: ${elapsed}`);
-}
-IterUsage(100);
-for (let i = 1; i < 14; i++) {
-  const before = Date.now();
-  IterUsage(1 << (i * 2));
-  const elapsed = Date.now() - before;
-  console.log(`Array ${i}: ${elapsed}`);
+
+function HybridUsage(count: number) {
+  const data = Iter(MakeArray(count))
+    .filter((d) => d % 2 === 0)
+    .reduce((pv, cv) => pv + cv, 0);
+  console.log(data);
 }
 
-*/
+const lo = 10;
+const hi = 14;
+const num = 5;
+function getSize(val: number): number {
+  return 1 << (val * 2);
+}
+
+ArrayUsage(100);
+for (let i = lo; i < hi; i++) {
+  let total = 0;
+  for (let j = 0; j < num; j++) {
+    const before = Date.now();
+    ArrayUsage(getSize(i));
+    const elapsed = Date.now() - before;
+    total += elapsed;
+  }
+  console.log(`Array ${i}: ${total}`);
+}
+IterUsage(100);
+for (let i = lo; i < hi; i++) {
+  let total = 0;
+  for (let j = 0; j < num; j++) {
+    const before = Date.now();
+    IterUsage(getSize(i));
+    const elapsed = Date.now() - before;
+    total += elapsed;
+  }
+  console.log(`Iter ${i}: ${total}`);
+}
+HybridUsage(100);
+for (let i = lo; i < hi; i++) {
+  let total = 0;
+  for (let j = 0; j < num; j++) {
+    const before = Date.now();
+    HybridUsage(getSize(i));
+    const elapsed = Date.now() - before;
+    total += elapsed;
+  }
+  console.log(`Hybrid ${i}: ${total}`);
+}

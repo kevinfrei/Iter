@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-bitwise */
 export declare type IterExpr<T> = {
   forEach: (fn: (v: T) => void) => void;
   reduce: <U>(

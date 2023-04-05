@@ -4,17 +4,14 @@
   "description": "A library to make iterators and iterables more usable",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "repository": "git@github.com:kevinfrei/Iter.git",
+  "repository": "github:kevinfrei/Iter",
   "author": "Kevin Frei <kevinfrei@hotmail.com>",
   "license": "Unlicense",
   "bugs": {
     "url": "https://github.com/kevinfrei/Iter/issues"
   },
   "homepage": "https://github.com/kevinfrei/Iter#readme",
-  "keywords": [
-    "js-utils",
-    "iteration"
-  ],
+  "keywords": ["js-utils", "iteration"],
   "husky": {
     "hooks": {
       "pre-commit": "yarn format",
@@ -23,26 +20,48 @@
   },
   "scripts": {
     "test": "jest --config jestconfig.json",
-    "build": "rimraf lib && tsc",
-    "prepare": "yarn run build",
-    "prepublishOnly": "yarn test && yarn run lint",
-    "format": "prettier --write \"src/**/*.ts\" \"*.md\" \"*.json\" \".vscode/*.json\"",
-    "lint": "yarn run eslint --fix --ext .ts src",
-    "preversion": "yarn run lint",
-    "version": "yarn run format && git add -A src",
-    "postversion": "git push && git push --tags",
-    "compile": "tsc --noEmit",
-    "chk": "yarn format && yarn lint && yarn compile && yarn test"
+    "watch": "jest --watch --config jestconfig.json",
+    "clean": "rimraf lib .*.tsbuildinfo",
+    "release": "yarn clean && tsc --project tsconfig.cjs.opt.json && tsc --project tsconfig.esm.opt.json && yarn ftool minify -i -r lib",
+    "build": "tsc --project tsconfig.cjs.json && tsc --project tsconfig.esm.json",
+    "cleanbuild": "yarn clean && yarn build",
+    "dbg": "yarn clean && tsc --sourceMap true --project tsconfig.cjs.json && tsc --sourceMap true --project tsconfig.esm.json",
+    "postinstall": "husky install",
+    "prepublishOnly": "yarn test && yarn lint && yarn pinst --disable",
+    "postpublish": "yarn pinst --enable",
+    "prepare": "yarn release",
+    "format": "yarn run prettier -w package.json src/**/*.ts",
+    "lint": "eslint --fix --ext .ts src",
+    "preversion": "yarn lint",
+    "version": "yarn format && git add -A src",
+    "postversion": "git push && git push --tags --no-verify",
+    "compile": "tsc --noEmit --project tsconfig.cjs.json && tsc --noEmit --project tsconfig.esm.json",
+    "chk": "yarn format && yarn lint && yarn compile && yarn test",
+    "doc": "typedoc ./src/index.ts --readme none --tsconfig tsconfig.esm.json"
   },
   "devDependencies": {
-    "@freik/ts-tooling": "^0.1.0",
+    "@freik/build-tools": "^3.4.12",
+    "@freik/core-utils": "^1.4.5",
+    "@jest/types": "^29.5.0",
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
     "husky": "^8.0.3",
+    "jest": "^29.5.0",
     "pinst": "^3.0.0",
     "prettier": "^2.8.7",
-    "rimraf": "^4.4.1"
+    "rimraf": "^4.4.1",
+    "ts-jest": "^29.0.5",
+    "typedoc": "^0.23.28",
+    "typedoc-plugin-markdown": "^3.14.0",
+    "typescript": "^5.0.2"
   },
-  "files": [
-    "lib/**/*"
-  ],
+  "files": ["lib/**/*"],
+  "engines": {
+    "node": "^14.13.1 || >= 16.0.0"
+  },
   "packageManager": "yarn@3.5.0"
 }

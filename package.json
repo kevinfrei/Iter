@@ -1,0 +1,48 @@
+{
+  "name": "@freik/iter",
+  "version": "0.0.2",
+  "description": "A library to make iterators and iterables more usable",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": "git@github.com:kevinfrei/Iter.git",
+  "author": "Kevin Frei <kevinfrei@hotmail.com>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/kevinfrei/Iter/issues"
+  },
+  "homepage": "https://github.com/kevinfrei/Iter#readme",
+  "keywords": [
+    "js-utils",
+    "iteration"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format",
+      "pre-push": "yarn chk"
+    }
+  },
+  "scripts": {
+    "test": "jest --config jestconfig.json",
+    "build": "rimraf lib && tsc",
+    "prepare": "yarn run build",
+    "prepublishOnly": "yarn test && yarn run lint",
+    "format": "prettier --write \"src/**/*.ts\" \"*.md\" \"*.json\" \".vscode/*.json\"",
+    "lint": "yarn run eslint --fix --ext .ts src",
+    "preversion": "yarn run lint",
+    "version": "yarn run format && git add -A src",
+    "postversion": "git push && git push --tags",
+    "compile": "tsc --noEmit",
+    "chk": "yarn format && yarn lint && yarn compile && yarn test"
+  },
+  "devDependencies": {
+    "@freik/ts-tooling": "^0.1.0",
+    "husky": "^8.0.3",
+    "pinst": "^3.0.0",
+    "prettier": "^2.8.7",
+    "rimraf": "^4.4.1"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "packageManager": "yarn@3.5.0"
+}
